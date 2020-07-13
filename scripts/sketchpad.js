@@ -185,7 +185,7 @@ Sketchpad.prototype._mouseMove = function(event) {
 
 Sketchpad.prototype._touchStart = function(event) {
   event.preventDefault();
-  if (this._sketching) {
+  if (this._sketching || event.touches.length >= 2) {
     return;
   }
   this._lastPosition = this._getCursorPositionRelativeToCanvas(event.changedTouches[0]);
@@ -198,10 +198,10 @@ Sketchpad.prototype._touchStart = function(event) {
 
 Sketchpad.prototype._touchEnd = function(event) {
   event.preventDefault();
-  if (this._sketching) {
+  if (this._sketching && event.touches.length <= 1) {
     this._addStroke(this._currentStroke);
-    this._sketching = false;
   }
+  this._sketching = false;
   this.canvas.removeEventListener('touchmove', this._touchMove);
 };
 
@@ -210,6 +210,12 @@ Sketchpad.prototype._touchLeave = Sketchpad.prototype._touchEnd;
 
 Sketchpad.prototype._touchMove = function(event) {
   event.preventDefault();
+
+  if (event.touches.length >= 2)
+  {
+    return;
+  }
+
   var currentPosition = this._getCursorPositionRelativeToCanvas(event.changedTouches[0]);
 
   this._currentStroke.lines.push({
